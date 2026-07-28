@@ -1,0 +1,412 @@
+
+
+Git github lesson · HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Version Control with Git &amp; GitHub</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+ 
+  :root{
+    --ink:#12130f;
+    --paper:#f3efe4;
+    --paper-2:#eae4d3;
+    --line:#c9c0a8;
+    --main:#2f6f4e;      /* git green */
+    --branch:#c25b2c;    /* branch orange */
+    --remote:#3a5a8c;    /* remote blue */
+    --accent:#e0b23a;    /* highlight */
+    --mut:#5f5b4d;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px}
+ 
+  /* ---------- Hero ---------- */
+  header{
+    padding:64px 0 40px;border-bottom:2px solid var(--ink);
+    position:relative;overflow:hidden;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--main);
+    font-weight:600;margin-bottom:18px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:900;
+    font-size:clamp(2.6rem,7vw,5rem);line-height:.98;
+    margin:0 0 18px;letter-spacing:-.02em;
+  }
+  h1 em{font-style:italic;color:var(--main)}
+  .lede{font-size:clamp(1.05rem,2.4vw,1.35rem);max-width:640px;color:var(--mut)}
+ 
+  /* ---------- Sections ---------- */
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  .snum{
+    font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--branch);
+    font-weight:600;letter-spacing:.1em;
+  }
+  h2{
+    font-family:'Fraunces',serif;font-weight:600;
+    font-size:clamp(1.7rem,4vw,2.6rem);margin:.2em 0 .5em;letter-spacing:-.01em;
+  }
+  h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;margin:1.4em 0 .3em}
+  p{margin:.6em 0}
+  strong{font-weight:700}
+  .term{color:var(--main);font-weight:700}
+ 
+  /* analogy cards */
+  .analogy{
+    display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:1.6em 0;
+  }
+  .analogy>div{background:var(--paper);padding:22px 24px}
+  .analogy .real{background:var(--paper-2)}
+  .analogy .tag{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;
+    letter-spacing:.14em;color:var(--mut);margin-bottom:8px;display:block;
+  }
+  @media(max-width:640px){.analogy{grid-template-columns:1fr}}
+ 
+  /* ---------- Animation stage ---------- */
+  .stage-wrap{
+    background:var(--ink);border-radius:18px;padding:28px;margin:1.5em 0;
+    color:#f3efe4;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);
+  }
+  .stage-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:12px}
+  .stage-title{font-family:'JetBrains Mono',monospace;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  svg{width:100%;height:auto;display:block;overflow:visible}
+ 
+  .node{cursor:default}
+  .node circle{stroke-width:3;transition:opacity .5s ease, transform .5s ease}
+  .commit-c{fill:var(--main);stroke:#7fc79f}
+  .branch-c{fill:var(--branch);stroke:#f0a97e}
+  .remote-c{fill:var(--remote);stroke:#8fb0dd}
+  .node text{font-family:'JetBrains Mono',monospace;font-size:12px;fill:#f3efe4}
+  .edge{stroke:#6b6754;stroke-width:2.5;fill:none;transition:opacity .5s ease}
+  .edge.branch{stroke:var(--branch)}
+  .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#b9b3a0}
+  .ptr{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
+  .hidden{opacity:0}
+  .pop{animation:pop .55s cubic-bezier(.2,1.4,.4,1) both}
+  @keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+ 
+  /* caption + controls */
+  .caption{
+    background:rgba(255,255,255,.06);border-left:3px solid var(--accent);
+    padding:14px 18px;border-radius:0 8px 8px 0;margin-top:18px;min-height:76px;
+  }
+  .caption code{
+    font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,.35);
+    padding:2px 7px;border-radius:5px;color:#f0d78a;font-size:.86em;
+  }
+  .caption .step-t{font-weight:700;color:var(--accent);display:block;margin-bottom:3px;font-family:'Space Grotesk'}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+  .btn{
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.92rem;
+    padding:11px 20px;border-radius:10px;border:none;cursor:pointer;
+    background:var(--accent);color:var(--ink);transition:transform .12s ease, filter .12s ease;
+  }
+  .btn:hover{filter:brightness(1.08)}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:#f3efe4;border:1.5px solid #6b6754}
+  .btn:disabled{opacity:.35;cursor:not-allowed}
+  .progress{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#b9b3a0;margin-left:auto}
+ 
+  /* command table */
+  .cmds{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:.95rem}
+  .cmds th,.cmds td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  .cmds th{font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut)}
+  .cmds code{font-family:'JetBrains Mono',monospace;background:var(--paper-2);padding:3px 8px;border-radius:6px;color:var(--main);font-weight:600;white-space:nowrap}
+ 
+  .callout{background:var(--paper-2);border-radius:12px;padding:18px 22px;margin:1.4em 0;border:1px solid var(--line)}
+  .callout .tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--branch);font-weight:600}
+ 
+  footer{padding:40px 0 70px;color:var(--mut);font-size:.9rem}
+  footer .kick{font-family:'Fraunces',serif;font-style:italic;font-size:1.3rem;color:var(--ink);margin-bottom:8px}
+ 
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+ 
+<header>
+  <div class="wrap">
+    <div class="eyebrow">A visual guide &middot; for students</div>
+    <h1>Keeping track of<br>every <em>change</em>.</h1>
+    <p class="lede">Version control is a time machine for your work. Git is the machine; GitHub is where you park it so others can climb aboard. Let's watch how it actually works.</p>
+  </div>
+</header>
+ 
+<section>
+  <div class="wrap">
+    <span class="snum">01 / THE PROBLEM</span>
+    <h2>Ever named a file <em>final_v2_REALfinal.docx</em>?</h2>
+    <p>That messy pile of copies is version control done by hand &mdash; and it falls apart fast. You can't tell what changed between versions, you can't safely undo a mistake, and if two people edit at once, someone's work gets overwritten.</p>
+    <p><span class="term">Git</span> solves this. Instead of saving whole copies, it records each <em>change</em> you make as a labelled snapshot you can jump back to at any time.</p>
+ 
+    <div class="analogy">
+      <div class="real">
+        <span class="tag">Real life</span>
+        <p><strong>A video game save point.</strong> Before a boss fight, you save. If you lose, you reload from that exact spot &mdash; no progress before it is lost.</p>
+      </div>
+      <div>
+        <span class="tag">In Git</span>
+        <p><strong>A commit.</strong> Each commit is a save point for your project. You can reload any earlier one, forever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<section>
+  <div class="wrap">
+    <span class="snum">02 / THE CORE IDEA</span>
+    <h2>Watch a project grow, one commit at a time</h2>
+    <p>Below is a real Git history. Press <strong>Next</strong> to build it step by step, exactly how you'd narrate it to a class. Each dot is a commit; the arrow always points back to the change that came before it.</p>
+ 
+    <div class="stage-wrap">
+      <div class="stage-head">
+        <span class="stage-title">git log &mdash; live</span>
+        <span class="progress" id="prog">step 0 / 8</span>
+      </div>
+ 
+      <svg viewBox="0 0 820 300" id="stage" aria-label="Animated Git commit graph">
+        <!-- main line edges -->
+        <path class="edge hidden" id="e1" d="M120,210 H240"/>
+        <path class="edge hidden" id="e2" d="M240,210 H360"/>
+        <path class="edge branch hidden" id="eb" d="M360,210 C420,210 420,110 480,110"/>
+        <path class="edge branch hidden" id="eb2" d="M480,110 H600"/>
+        <path class="edge hidden" id="e3" d="M360,210 H600"/>
+        <path class="edge hidden" id="emerge" d="M600,110 C660,110 660,210 720,210"/>
+        <path class="edge hidden" id="emerge2" d="M600,210 H720"/>
+ 
+        <!-- main branch commits -->
+        <g class="node hidden" id="c1">
+          <circle class="commit-c" cx="120" cy="210" r="20"/>
+          <text x="120" y="214" text-anchor="middle">C1</text>
+          <text class="lbl" x="120" y="252" text-anchor="middle">first commit</text>
+        </g>
+        <g class="node hidden" id="c2">
+          <circle class="commit-c" cx="240" cy="210" r="20"/>
+          <text x="240" y="214" text-anchor="middle">C2</text>
+          <text class="lbl" x="240" y="252" text-anchor="middle">add homepage</text>
+        </g>
+        <g class="node hidden" id="c3">
+          <circle class="commit-c" cx="360" cy="210" r="20"/>
+          <text x="360" y="214" text-anchor="middle">C3</text>
+          <text class="lbl" x="360" y="252" text-anchor="middle">fix typo</text>
+        </g>
+ 
+        <!-- feature branch -->
+        <g class="node hidden" id="b1">
+          <circle class="branch-c" cx="480" cy="110" r="20"/>
+          <text x="480" y="114" text-anchor="middle">F1</text>
+          <text class="lbl" x="480" y="78" text-anchor="middle">start login page</text>
+        </g>
+        <g class="node hidden" id="b2">
+          <circle class="branch-c" cx="600" cy="110" r="20"/>
+          <text x="600" y="114" text-anchor="middle">F2</text>
+          <text class="lbl" x="600" y="78" text-anchor="middle">finish login</text>
+        </g>
+ 
+        <!-- main continues -->
+        <g class="node hidden" id="c4">
+          <circle class="commit-c" cx="600" cy="210" r="20"/>
+          <text x="600" y="214" text-anchor="middle">C4</text>
+          <text class="lbl" x="600" y="252" text-anchor="middle">update footer</text>
+        </g>
+ 
+        <!-- merge -->
+        <g class="node hidden" id="cm">
+          <circle class="commit-c" cx="720" cy="210" r="20"/>
+          <text x="720" y="214" text-anchor="middle">M</text>
+          <text class="lbl" x="720" y="252" text-anchor="middle">merge login</text>
+        </g>
+ 
+        <!-- branch labels -->
+        <g class="hidden" id="mainlbl">
+          <rect x="60" y="196" width="52" height="26" rx="6" fill="#2f6f4e"/>
+          <text class="ptr" x="86" y="213" text-anchor="middle" fill="#fff">main</text>
+        </g>
+        <g class="hidden" id="featlbl">
+          <rect x="418" y="30" width="76" height="26" rx="6" fill="#c25b2c"/>
+          <text class="ptr" x="456" y="47" text-anchor="middle" fill="#fff">feature</text>
+        </g>
+      </svg>
+ 
+      <div class="caption" id="cap">
+        <span class="step-t">Press Next to begin</span>
+        An empty project. Nothing is tracked yet &mdash; we're about to make our first save point.
+      </div>
+ 
+      <div class="controls">
+        <button class="btn ghost" id="prev" disabled>&larr; Back</button>
+        <button class="btn" id="next">Next &rarr;</button>
+        <button class="btn ghost" id="reset">Reset</button>
+        <span class="progress" id="hint">tip: narrate each step aloud</span>
+      </div>
+    </div>
+    <p style="font-size:.9rem;color:var(--mut)">Notice the <span style="color:var(--branch);font-weight:700">orange branch</span>: work on the login page happened <em>off to the side</em>, so the main site kept working. When it was ready, it merged back in. That's the superpower &mdash; experimenting without breaking what already works.</p>
+  </div>
+</section>
+ 
+<section>
+  <div class="wrap">
+    <span class="snum">03 / GIT vs GITHUB</span>
+    <h2>Same word, two different jobs</h2>
+    <p>Beginners mix these up constantly. Keep them straight and the rest is easy.</p>
+    <div class="analogy">
+      <div>
+        <span class="tag">Git</span>
+        <h3 style="margin-top:0">The tool on your computer</h3>
+        <p>Git runs <em>locally</em>. It tracks changes, makes commits, and manages branches even with no internet. Think of it as the <strong>camera</strong> taking the snapshots.</p>
+      </div>
+      <div class="real">
+        <span class="tag">GitHub</span>
+        <h3 style="margin-top:0">The website that hosts it</h3>
+        <p>GitHub stores your project <em>online</em> so a whole team can share it, review changes, and work together. Think of it as the <strong>shared photo album</strong> in the cloud.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <span class="tag">Analogy</span>
+      <p style="margin-bottom:0"><strong>Git is to GitHub what Word is to Google Drive.</strong> One creates and edits the document; the other stores it online and lets people collaborate. You can use Git with no GitHub at all &mdash; but GitHub makes teamwork painless.</p>
+    </div>
+  </div>
+</section>
+ 
+<section>
+  <div class="wrap">
+    <span class="snum">04 / TEAMWORK</span>
+    <h2>Push, pull, and staying in sync</h2>
+    <p>When your commits live on your laptop, only you can see them. GitHub is the shared copy in the middle. Two commands move work between your machine and that shared copy:</p>
+ 
+    <div class="analogy">
+      <div>
+        <span class="tag">git push</span>
+        <p><strong>Upload.</strong> Send your local commits <em>up</em> to GitHub so teammates can get them. Like posting your photos to the shared album.</p>
+      </div>
+      <div class="real">
+        <span class="tag">git pull</span>
+        <p><strong>Download.</strong> Bring teammates' latest commits <em>down</em> to your machine. Like refreshing the album to see what others added.</p>
+      </div>
+    </div>
+ 
+    <div class="callout">
+      <span class="tag">The daily rhythm</span>
+      <p style="margin-bottom:0"><strong>Pull &rarr; work &rarr; commit &rarr; push.</strong> Pull first so you start from the newest version, do your work, save it as commits, then push to share. Do this every session and you'll rarely hit a conflict.</p>
+    </div>
+  </div>
+</section>
+ 
+<section>
+  <div class="wrap">
+    <span class="snum">05 / CHEAT SHEET</span>
+    <h2>The seven commands that cover 90% of it</h2>
+    <table class="cmds">
+      <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>git init</code></td><td>Start tracking a project with Git (do this once).</td></tr>
+        <tr><td><code>git clone &lt;url&gt;</code></td><td>Copy an existing GitHub project onto your computer.</td></tr>
+        <tr><td><code>git add .</code></td><td>Stage your changes &mdash; pick what goes in the next snapshot.</td></tr>
+        <tr><td><code>git commit -m "msg"</code></td><td>Take the snapshot with a short note describing it.</td></tr>
+        <tr><td><code>git push</code></td><td>Upload your commits to GitHub.</td></tr>
+        <tr><td><code>git pull</code></td><td>Download the latest commits from GitHub.</td></tr>
+        <tr><td><code>git status</code></td><td>Ask Git what's changed and what's staged. Use it constantly.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <span class="tag">Golden rule</span>
+      <p style="margin-bottom:0">Write commit messages a teammate (or future-you) will understand. <code style="font-family:'JetBrains Mono'">"fix login crash on empty password"</code> beats <code style="font-family:'JetBrains Mono'">"stuff"</code> every single time.</p>
+    </div>
+  </div>
+</section>
+ 
+<footer>
+  <div class="wrap">
+    <p class="kick">Save early, save often, and never fear breaking things.</p>
+    <p>That's the whole promise of version control: every mistake is reversible, every experiment is safe, and every teammate stays in sync. Now go make your first commit.</p>
+  </div>
+</footer>
+ 
+<script>
+(function(){
+  var show=function(id){var el=document.getElementById(id); if(el){el.classList.remove('hidden'); el.classList.add('pop');}};
+  var hide=function(id){var el=document.getElementById(id); if(el){el.classList.add('hidden'); el.classList.remove('pop');}};
+ 
+  // each step: elements to reveal, and caption
+  var steps=[
+    { on:[], title:"Press Next to begin",
+      body:"An empty project. Nothing is tracked yet — we're about to make our first save point." },
+ 
+    { on:['c1','mainlbl'], title:"git commit — the first snapshot",
+      body:"Run <code>git init</code> then <code>git commit</code>. Commit <b>C1</b> is born on the <b>main</b> branch. This is our starting save point." },
+ 
+    { on:['e1','c2'], title:"git commit — building up",
+      body:"We add the homepage and commit again. <b>C2</b> points back to C1. The arrow means: this snapshot came right after that one." },
+ 
+    { on:['e2','c3'], title:"git commit — a small fix",
+      body:"Another change, another commit. <b>C3</b> fixes a typo. The main branch now has a clear history you can rewind through." },
+ 
+    { on:['eb','b1','featlbl'], title:"git branch feature — split off",
+      body:"Time for a risky feature: a login page. We branch off into <b>feature</b> so we can experiment <i>without touching</i> the working site." },
+ 
+    { on:['eb2','b2'], title:"git commit — work on the branch",
+      body:"We build the login page over on the feature branch (<b>F1</b>, <b>F2</b>). If it breaks, the real site — on main — is completely safe." },
+ 
+    { on:['e3','c4'], title:"Meanwhile, main keeps moving",
+      body:"A teammate updates the footer on <b>main</b> (<b>C4</b>). Both lines of work happen at the same time, in parallel. No one blocks anyone." },
+ 
+    { on:['emerge','emerge2','cm'], title:"git merge — bring it together",
+      body:"The login page is ready. We <code>git merge</code> the feature branch back into main. Commit <b>M</b> joins both histories into one." },
+ 
+    { on:[], title:"That's version control",
+      body:"Every dot is recoverable, the risky work never endangered the real site, and everything reunited cleanly. Repeat this loop forever. 🎉",
+      final:true }
+  ];
+ 
+  var i=0;
+  var allEls=['e1','e2','e3','eb','eb2','emerge','emerge2','c1','c2','c3','c4','b1','b2','cm','mainlbl','featlbl'];
+ 
+  var cap=document.getElementById('cap');
+  var prog=document.getElementById('prog');
+  var prevBtn=document.getElementById('prev');
+  var nextBtn=document.getElementById('next');
+  var resetBtn=document.getElementById('reset');
+ 
+  function render(){
+    // reset visibility, then show everything cumulatively up to i
+    allEls.forEach(hide);
+    for(var s=0;s<=i;s++){ steps[s].on.forEach(show); }
+    cap.innerHTML='<span class="step-t">'+steps[i].title+'</span>'+steps[i].body;
+    prog.textContent='step '+i+' / '+(steps.length-1);
+    prevBtn.disabled=(i===0);
+    nextBtn.disabled=(i===steps.length-1);
+    nextBtn.textContent=(i===steps.length-2)?'Finish →':'Next →';
+  }
+  nextBtn.onclick=function(){ if(i<steps.length-1){i++;render();} };
+  prevBtn.onclick=function(){ if(i>0){i--;render();} };
+  resetBtn.onclick=function(){ i=0;render(); };
+ 
+  // keyboard arrows for presenting
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'){nextBtn.click();}
+    if(e.key==='ArrowLeft'){prevBtn.click();}
+  });
+ 
+  render();
+})();
+</script>
+</body>
+</html>
+ 
